@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import NewsPage from "./pages/NewsPage";
 import SavedPage from "./pages/SavedPage";
 import DetailPage from "./pages/DetailPage";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/saved" element={<SavedPage />} />
         <Route path="/detail/:id" element={<DetailPage />} />
       </Route>
+      <Route path="*" element={<NotFound/>} />
     </Routes>
   );
 };

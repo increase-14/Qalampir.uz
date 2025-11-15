@@ -1,154 +1,87 @@
-import React from "react";
-import { Link, useOutletContext } from "react-router-dom";
-import { FiHeart, FiClock } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
+import { useOutletContext, Link } from "react-router-dom";
 
 const NewsPage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { savedPosts, setSavedPosts } = useOutletContext();
 
-  const posts = [
-    {
-      id: 1,
-      title: "O‘zbekiston iqtisodiyoti 2025 yilda 7% o‘sishi kutilmoqda",
-      body: "Jahon banki hisobotiga ko‘ra, eksport va investitsiyalar o‘sishi mamlakat iqtisodiyotini yangi bosqichga olib chiqadi. Energetika va IT sohasidagi loyihalar asosiy omil bo‘lmoqda.",
-      date: "15 noyabr, 2025",
-    },
-    {
-      id: 2,
-      title: "Toshkentda yangi IT Park ochildi",
-      body: "1000 dan ortiq dasturchi va startapchilar uchun mo‘ljallangan zamonaviy markaz bugun rasman ish boshladi. Prezident ishtirok etdi.",
-      date: "14 noyabr, 2025",
-    },
-    {
-      id: 3,
-      title: "Yangi metro liniyasi qurilishi boshlandi",
-      body: "Sergeli va Yangihayot tumanlarini bog‘lovchi yangi metro liniyasi 2027 yilda foydalanishga topshiriladi. Umumiy uzunligi — 12 km.",
-      date: "13 noyabr, 2025",
-    },
-    {
-      id: 4,
-      title: "O‘zbekistonlik talaba xalqaro olimpiadada oltin oldi",
-      body: "Matematika bo‘yicha xalqaro olimpiadada 1-o‘rinni qo‘lga kiritgan Abduqodir Toshkentga qaytdi. Uni aeroportda kutib olishdi.",
-      date: "12 noyabr, 2025",
-    },
-    {
-      id: 5,
-      title: "Yangi soliq imtiyozlari — tadbirkorlarga yordam",
-      body: "Kichik biznes uchun soliq stavkasi 2 baravar kamaytirildi. Bu 2026 yilgacha amal qiladi.",
-      date: "11 noyabr, 2025",
-    },
-    {
-      id: 6,
-      title: "Ob-havo: hafta oxirida yomg‘ir kutilmoqda",
-      body: "Sinoptiklar ma’lumotiga ko‘ra, 16-17 noyabr kunlari butun respublika bo‘ylab yomg‘ir yog‘adi. Harorat 12-15 daraja atrofida bo‘ladi.",
-      date: "15 noyabr, 2025",
-    },
-  ];
+  useEffect(() => {
+    fetch("https://dummyjson.com/posts")
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts(data.posts);
+        setLoading(false);
+      })
+      .catch(() => {
+        setPosts(mockPosts);
+        setLoading(false);
+      });
+  }, []);
 
-  const saqlash = (post) => {
-    const bor = savedPosts.some((p) => p.id === post.id);
-    if (bor) {
+  const toggleSave = (post) => {
+    const isSaved = savedPosts.some((p) => p.id === post.id);
+    if (isSaved) {
       setSavedPosts(savedPosts.filter((p) => p.id !== post.id));
     } else {
       setSavedPosts([...savedPosts, post]);
     }
   };
 
-  const asosiy = posts[0];
-  const qolgan = posts.slice(1);
+  if (loading)
+    return (
+      <div className="text-center mt-20 text-xl font-semibold text-gray-600 animate-pulse">
+        Yuklanmoqda...
+      </div>
+    );
 
   return (
-    <div className="min-h-screen">
-      <section className="bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <span className="text-red-600 font-semibold text-sm">ASOSIY</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4 leading-tight">
-                <Link
-                  to={`/detail/${asosiy.id}`}
-                  className="hover:text-red-600 transition-colors"
-                >
-                  {asosiy.title}
-                </Link>
-              </h1>
-              <p className="text-gray-700 text-lg mb-4 line-clamp-3">
-                {asosiy.body}
-              </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <FiClock className="w-4 h-4" /> {asosiy.date}
-                </span>
-                <Link
-                  to={`/detail/${asosiy.id}`}
-                  className="text-red-600 font-medium hover:underline"
-                >
-                  Batafsil
-                </Link>
-              </div>
-            </div>
-            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-64 md:h-80"></div>
-          </div>
-        </div>
-      </section>
+    <div className="max-w-7xl mx-auto px-6 py-10 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => {
+        const isSaved = savedPosts.some((p) => p.id === post.id);
 
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          So‘nggi yangiliklar
-        </h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          {qolgan.map((post) => {
-            const saqlangan = savedPosts.some((p) => p.id === post.id);
-            return (
-              <div
-                key={post.id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100 flex gap-4"
+        return (
+          <div
+            key={post.id}
+            className="bg-white border rounded-2xl shadow hover:shadow-xl transition-all duration-300 p-6 flex flex-col"
+          >
+           <div>
+           <img
+              className="w-full rounded-xl h-[300px]"
+              src="https://picsum.photos/200/"
+              alt=""
+            />
+           </div>
+            <h1 className="font-semibold text-xl mb-3 text-gray-900 line-clamp-2">
+              {post.title}
+            </h1>
+
+            <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+              {post.body}
+            </p>
+
+            <div className="mt-auto flex justify-between items-center pt-2">
+              <Link
+                to={`/detail/${post.id}`}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
               >
-                <div className="bg-gray-200 border-2 border-dashed rounded-lg w-28 h-28"></div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                    <Link
-                      to={`/detail/${post.id}`}
-                      className="hover:text-red-600 transition-colors"
-                    >
-                      {post.title}
-                    </Link>
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {post.body}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <FiClock className="w-3 h-3" /> {post.date}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <Link
-                        to={`/detail/${post.id}`}
-                        className="text-red-600 hover:underline"
-                      >
-                        Batafsil
-                      </Link>
-                      <button
-                        onClick={() => saqlash(post)}
-                        className={`p-1.5 rounded-full transition ${
-                          saqlangan
-                            ? "text-red-600"
-                            : "text-gray-400 hover:text-red-600"
-                        }`}
-                      >
-                        <FiHeart
-                          className={`w-4 h-4 ${
-                            saqlangan ? "fill-current" : ""
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                Batafsil o‘qish
+              </Link>
+
+              <button
+                onClick={() => toggleSave(post)}
+                className={`px-3 py-1 text-sm rounded-full border transition ${
+                  isSaved
+                    ? "bg-red-100 text-red-600 border-red-300 hover:bg-red-200"
+                    : "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+                }`}
+              >
+                {isSaved ? "O‘chirish" : "Saqlash"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
